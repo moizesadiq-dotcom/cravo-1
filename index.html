@@ -39,11 +39,13 @@
     }
   </script>
   <style>
+    * { box-sizing: border-box; }
     .bg-editorial-grid {
       background-color: #FAF8F5;
       background-image: radial-gradient(#DDD4C8 1px, transparent 1px);
       background-size: 24px 24px;
     }
+    button { cursor: pointer; }
     ::-webkit-scrollbar {
       width: 5px;
       height: 5px;
@@ -57,93 +59,99 @@
     }
   </style>
 </head>
-<body class="font-sans antialiased h-screen overflow-hidden flex bg-paper-bg text-paper-text">
+<body class="font-sans antialiased h-screen h-dvh overflow-hidden flex bg-paper-bg text-paper-text relative">
+
+  <!-- MOBILE SIDEBAR BACKDROP -->
+  <div id="sidebarBackdrop" onclick="closeMobileSidebar()" class="fixed inset-0 bg-black/40 z-30 hidden md:hidden"></div>
 
   <!-- ================= SIDEBAR (WARM EDITORIAL LIGHT) ================= -->
-  <aside class="w-72 bg-paper-rail flex flex-col justify-between border-r border-paper-border select-none z-20 shrink-0">
-    <div class="p-5 flex flex-col h-full overflow-hidden">
+  <aside id="sidebar" class="fixed md:static inset-y-0 left-0 w-72 max-w-[82vw] bg-paper-rail flex flex-col justify-between border-r border-paper-border select-none z-40 shrink-0 -translate-x-full md:translate-x-0 transition-transform duration-200 ease-out">
+    <div class="p-4 sm:p-5 flex flex-col h-full overflow-hidden">
 
       <!-- Brand & Collapse Header -->
-      <div class="flex items-center justify-between mb-6">
-        <div class="flex items-center gap-2.5">
-          <div class="w-8 h-8 bg-accent rounded-lg flex items-center justify-center text-white">
+      <div class="flex items-center justify-between mb-5 shrink-0">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <div class="w-8 h-8 bg-accent rounded-lg flex items-center justify-center text-white shrink-0">
             <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
               <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
             </svg>
           </div>
-          <span class="text-paper-text font-bold text-lg tracking-tight">Cravo</span>
+          <span class="text-paper-text font-bold text-lg tracking-tight truncate">Cravo</span>
         </div>
-        <button onclick="showToast('Sidebar pinned')" class="text-paper-muted hover:text-paper-text transition-colors p-1.5 rounded-lg hover:bg-paper-subtle" title="Collapse sidebar">
+        <button type="button" onclick="closeMobileSidebar()" class="md:hidden text-paper-muted hover:text-paper-text transition-colors p-1.5 rounded-lg hover:bg-paper-subtle shrink-0" title="Close sidebar" aria-label="Close sidebar">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+        <button type="button" onclick="showToast('Sidebar pinned')" class="hidden md:inline-flex text-paper-muted hover:text-paper-text transition-colors p-1.5 rounded-lg hover:bg-paper-subtle shrink-0" title="Collapse sidebar" aria-label="Pin sidebar">
           <i data-lucide="panel-left-close" class="w-4 h-4"></i>
         </button>
       </div>
 
       <!-- New Chat Button -->
-      <button onclick="startNewChat()" class="w-full bg-accent hover:bg-accent-hover text-white font-semibold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors mb-6 text-sm">
-        <i data-lucide="square-pen" class="w-4 h-4"></i>
-        <span>New Session</span>
+      <button type="button" onclick="startNewChat(); closeMobileSidebar();" class="w-full bg-accent hover:bg-accent-hover text-white font-semibold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors mb-5 text-sm shrink-0">
+        <i data-lucide="square-pen" class="w-4 h-4 shrink-0"></i>
+        <span class="truncate">New Session</span>
       </button>
 
       <!-- Nav Items / Features -->
-      <div class="space-y-1 mb-6">
+      <div class="space-y-1 mb-5 shrink-0">
         <span class="text-[11px] font-semibold text-paper-faint uppercase tracking-wider px-3 mb-1.5 block">Workspace</span>
 
-        <button onclick="setMode('chat')" class="w-full flex items-center gap-3 px-3 py-2 rounded-xl bg-paper-surface text-paper-text border border-paper-border text-sm font-semibold transition-all">
-          <i data-lucide="message-square" class="w-4 h-4 text-accent"></i>
-          <span>AI Chat</span>
+        <button type="button" onclick="setMode('chat'); closeMobileSidebar();" class="w-full flex items-center gap-3 px-3 py-2 rounded-xl bg-paper-surface text-paper-text border border-paper-border text-sm font-semibold transition-all">
+          <i data-lucide="message-square" class="w-4 h-4 text-accent shrink-0"></i>
+          <span class="truncate">AI Chat</span>
         </button>
 
-        <button onclick="setMode('image')" class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-paper-muted hover:text-paper-text hover:bg-paper-subtle text-sm font-medium transition-all">
-          <i data-lucide="image" class="w-4 h-4 text-paper-muted"></i>
-          <span>Image Generator</span>
+        <button type="button" onclick="setMode('image'); closeMobileSidebar();" class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-paper-muted hover:text-paper-text hover:bg-paper-subtle text-sm font-medium transition-all">
+          <i data-lucide="image" class="w-4 h-4 text-paper-muted shrink-0"></i>
+          <span class="truncate">Image Generator</span>
         </button>
 
-        <button onclick="setMode('video')" class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-paper-muted hover:text-paper-text hover:bg-paper-subtle text-sm font-medium transition-all">
-          <i data-lucide="video" class="w-4 h-4 text-paper-muted"></i>
-          <span>Video Creator</span>
+        <button type="button" onclick="setMode('video'); closeMobileSidebar();" class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-paper-muted hover:text-paper-text hover:bg-paper-subtle text-sm font-medium transition-all">
+          <i data-lucide="video" class="w-4 h-4 text-paper-muted shrink-0"></i>
+          <span class="truncate">Video Creator</span>
         </button>
 
-        <button onclick="setMode('post')" class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-paper-muted hover:text-paper-text hover:bg-paper-subtle text-sm font-medium transition-all">
-          <i data-lucide="share-2" class="w-4 h-4 text-paper-muted"></i>
-          <span>Social Post Studio</span>
+        <button type="button" onclick="setMode('post'); closeMobileSidebar();" class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-paper-muted hover:text-paper-text hover:bg-paper-subtle text-sm font-medium transition-all">
+          <i data-lucide="share-2" class="w-4 h-4 text-paper-muted shrink-0"></i>
+          <span class="truncate">Social Post Studio</span>
         </button>
 
-        <button onclick="showToast('Opening saved studio library')" class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-paper-muted hover:text-paper-text hover:bg-paper-subtle text-sm font-medium transition-all">
-          <i data-lucide="library" class="w-4 h-4 text-paper-muted"></i>
-          <span>Library</span>
+        <button type="button" onclick="showToast('Opening saved studio library'); closeMobileSidebar();" class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-paper-muted hover:text-paper-text hover:bg-paper-subtle text-sm font-medium transition-all">
+          <i data-lucide="library" class="w-4 h-4 text-paper-muted shrink-0"></i>
+          <span class="truncate">Library</span>
         </button>
       </div>
 
       <!-- Chat History -->
-      <div class="flex-1 overflow-y-auto pr-1 -mr-2 space-y-5">
+      <div class="flex-1 overflow-y-auto pr-1 -mr-1 space-y-4 min-h-0">
         <div>
-          <span class="text-[11px] font-semibold text-paper-faint uppercase tracking-wider px-3 mb-2 block">Today</span>
+          <span class="text-[11px] font-semibold text-paper-faint uppercase tracking-wider px-3 mb-1.5 block">Today</span>
           <div class="space-y-1">
-            <button onclick="loadHistory('image_demo')" class="w-full text-left px-3 py-2 rounded-lg text-xs text-paper-muted hover:bg-paper-subtle hover:text-paper-text truncate transition-colors flex items-center gap-2">
-              <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
+            <button type="button" onclick="loadHistory('image_demo'); closeMobileSidebar();" class="w-full text-left px-3 py-2 rounded-lg text-xs text-paper-muted hover:bg-paper-subtle hover:text-paper-text truncate transition-colors flex items-center gap-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-accent shrink-0"></span>
               <span class="truncate">Architectural Courtyard Visuals</span>
             </button>
-            <button onclick="loadHistory('video_demo')" class="w-full text-left px-3 py-2 rounded-lg text-xs text-paper-muted hover:bg-paper-subtle hover:text-paper-text truncate transition-colors flex items-center gap-2">
-              <span class="w-1.5 h-1.5 rounded-full bg-amber-700"></span>
+            <button type="button" onclick="loadHistory('video_demo'); closeMobileSidebar();" class="w-full text-left px-3 py-2 rounded-lg text-xs text-paper-muted hover:bg-paper-subtle hover:text-paper-text truncate transition-colors flex items-center gap-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-700 shrink-0"></span>
               <span class="truncate">Coastal Sunset Motion Clip</span>
             </button>
-            <button onclick="loadHistory('post_demo')" class="w-full text-left px-3 py-2 rounded-lg text-xs text-paper-muted hover:bg-paper-subtle hover:text-paper-text truncate transition-colors flex items-center gap-2">
-              <span class="w-1.5 h-1.5 rounded-full bg-stone-500"></span>
+            <button type="button" onclick="loadHistory('post_demo'); closeMobileSidebar();" class="w-full text-left px-3 py-2 rounded-lg text-xs text-paper-muted hover:bg-paper-subtle hover:text-paper-text truncate transition-colors flex items-center gap-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-stone-500 shrink-0"></span>
               <span class="truncate">Brand Launch Editorial Post</span>
             </button>
           </div>
         </div>
 
         <div>
-          <span class="text-[11px] font-semibold text-paper-faint uppercase tracking-wider px-3 mb-2 block">Yesterday</span>
+          <span class="text-[11px] font-semibold text-paper-faint uppercase tracking-wider px-3 mb-1.5 block">Yesterday</span>
           <div class="space-y-1">
-            <button class="w-full text-left px-3 py-2 rounded-lg text-xs text-paper-muted hover:bg-paper-subtle hover:text-paper-text truncate transition-colors">
+            <button type="button" onclick="showToast('Opened prompt refinement notes'); closeMobileSidebar();" class="w-full text-left px-3 py-2 rounded-lg text-xs text-paper-muted hover:bg-paper-subtle hover:text-paper-text truncate transition-colors">
               Prompt refinement notes
             </button>
-            <button class="w-full text-left px-3 py-2 rounded-lg text-xs text-paper-muted hover:bg-paper-subtle hover:text-paper-text truncate transition-colors">
+            <button type="button" onclick="showToast('Opened campaign copy variations'); closeMobileSidebar();" class="w-full text-left px-3 py-2 rounded-lg text-xs text-paper-muted hover:bg-paper-subtle hover:text-paper-text truncate transition-colors">
               Campaign copy variations
             </button>
-            <button class="w-full text-left px-3 py-2 rounded-lg text-xs text-paper-muted hover:bg-paper-subtle hover:text-paper-text truncate transition-colors">
+            <button type="button" onclick="showToast('Opened aspect ratio presets'); closeMobileSidebar();" class="w-full text-left px-3 py-2 rounded-lg text-xs text-paper-muted hover:bg-paper-subtle hover:text-paper-text truncate transition-colors">
               Aspect ratio presets review
             </button>
           </div>
@@ -151,16 +159,16 @@
       </div>
 
       <!-- Bottom Studio Plan Card -->
-      <div class="mt-4 pt-4 border-t border-paper-border">
-        <div class="p-4 rounded-2xl bg-paper-surface border border-paper-border">
+      <div class="mt-3 pt-3 border-t border-paper-border shrink-0">
+        <div class="p-3.5 rounded-2xl bg-paper-surface border border-paper-border">
           <h4 class="text-paper-text text-xs font-bold mb-1 flex items-center gap-1.5">
-            <i data-lucide="sparkles" class="w-3.5 h-3.5 text-accent"></i>
-            Studio Pro
+            <i data-lucide="sparkles" class="w-3.5 h-3.5 text-accent shrink-0"></i>
+            <span>Studio Pro</span>
           </h4>
           <p class="text-[11px] text-paper-muted leading-relaxed mb-3">
             High-resolution renders, longer motion sequences, and multi-channel post drafts.
           </p>
-          <button onclick="showToast('Studio Pro plan details opened')" class="w-full bg-paper-subtle hover:bg-accent-soft text-paper-text hover:text-accent border border-paper-border text-xs font-semibold py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-colors">
+          <button type="button" onclick="showToast('Studio Pro plan details opened')" class="w-full bg-paper-subtle hover:bg-accent-soft text-paper-text hover:text-accent border border-paper-border text-xs font-semibold py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-colors">
             <span>View Plans</span>
           </button>
         </div>
@@ -170,67 +178,73 @@
   </aside>
 
   <!-- ================= MAIN CONTENT AREA ================= -->
-  <main class="flex-1 flex flex-col h-full bg-editorial-grid relative overflow-hidden">
+  <main class="flex-1 min-w-0 flex flex-col h-full bg-editorial-grid relative overflow-hidden">
 
     <!-- Top Navigation Bar -->
-    <header class="h-16 px-8 flex items-center justify-between border-b border-paper-border/70 bg-paper-bg/90 backdrop-blur-sm z-10">
-      <!-- Model Selector Dropdown -->
-      <div class="relative">
-        <button id="modelBtn" onclick="toggleDropdown('modelMenu')" class="flex items-center gap-2 text-sm font-semibold text-paper-text bg-paper-surface px-3.5 py-2 rounded-xl border border-paper-border hover:bg-paper-subtle transition-colors">
-          <span class="w-2 h-2 rounded-full bg-accent"></span>
-          <span id="currentModelLabel">Auralis 1.0 (Studio Mode)</span>
-          <i data-lucide="chevron-down" class="w-4 h-4 text-paper-muted"></i>
+    <header class="h-16 px-3 sm:px-6 md:px-8 flex items-center justify-between gap-2 border-b border-paper-border/70 bg-paper-bg/95 backdrop-blur-sm z-20 shrink-0">
+      <div class="flex items-center gap-2 min-w-0">
+        <button type="button" onclick="openMobileSidebar()" class="md:hidden w-9 h-9 flex items-center justify-center rounded-xl bg-paper-surface border border-paper-border text-paper-text hover:bg-paper-subtle transition-colors shrink-0" aria-label="Open menu">
+          <i data-lucide="menu" class="w-4 h-4"></i>
         </button>
 
-        <div id="modelMenu" class="hidden absolute top-12 left-0 w-64 bg-paper-surface rounded-xl border border-paper-border py-1.5 z-50">
-          <div class="px-3 py-1 text-[10px] font-bold text-paper-faint uppercase tracking-wider">AI Engines</div>
-          <button onclick="selectModel('Auralis 1.0 (Omni Studio)')" class="w-full text-left px-3 py-2 text-xs hover:bg-paper-subtle text-paper-text font-medium flex items-center justify-between">
-            <span>Auralis 1.0 (Auto Detect)</span>
-            <span class="text-[10px] bg-accent-soft text-accent px-1.5 py-0.5 rounded font-semibold">Balanced</span>
+        <!-- Model Selector Dropdown -->
+        <div class="relative min-w-0">
+          <button type="button" id="modelBtn" onclick="toggleDropdown('modelMenu')" class="flex items-center gap-2 text-xs sm:text-sm font-semibold text-paper-text bg-paper-surface px-3 sm:px-3.5 py-2 rounded-xl border border-paper-border hover:bg-paper-subtle transition-colors max-w-[195px] sm:max-w-none">
+            <span class="w-2 h-2 rounded-full bg-accent shrink-0"></span>
+            <span id="currentModelLabel" class="truncate">Auralis 1.0 (Studio Mode)</span>
+            <i data-lucide="chevron-down" class="w-4 h-4 text-paper-muted shrink-0"></i>
           </button>
-          <button onclick="selectModel('Auralis Vision (Images)')" class="w-full text-left px-3 py-2 text-xs hover:bg-paper-subtle text-paper-text font-medium flex items-center justify-between">
-            <span>Auralis Vision (4K Image)</span>
-            <span class="text-[10px] bg-paper-subtle text-paper-muted px-1.5 py-0.5 rounded font-semibold">Visuals</span>
-          </button>
-          <button onclick="selectModel('Auralis Motion (Videos)')" class="w-full text-left px-3 py-2 text-xs hover:bg-paper-subtle text-paper-text font-medium flex items-center justify-between">
-            <span>Auralis Motion (HD Video)</span>
-            <span class="text-[10px] bg-paper-subtle text-paper-muted px-1.5 py-0.5 rounded font-semibold">Motion</span>
-          </button>
-          <button onclick="selectModel('Auralis Copywriter (Posts)')" class="w-full text-left px-3 py-2 text-xs hover:bg-paper-subtle text-paper-text font-medium flex items-center justify-between">
-            <span>Auralis Copywriter (Social)</span>
-            <span class="text-[10px] bg-paper-subtle text-paper-muted px-1.5 py-0.5 rounded font-semibold">Editorial</span>
-          </button>
+
+          <div id="modelMenu" class="hidden absolute top-12 left-0 w-64 max-w-[calc(100vw-2rem)] bg-paper-surface rounded-xl border border-paper-border py-1.5 z-50 shadow-lg">
+            <div class="px-3 py-1 text-[10px] font-bold text-paper-faint uppercase tracking-wider">AI Engines</div>
+            <button type="button" onclick="selectModel('Auralis 1.0 (Omni Studio)')" class="w-full text-left px-3 py-2 text-xs hover:bg-paper-subtle text-paper-text font-medium flex items-center justify-between gap-2">
+              <span class="truncate">Auralis 1.0 (Auto Detect)</span>
+              <span class="text-[10px] bg-accent-soft text-accent px-1.5 py-0.5 rounded font-semibold shrink-0">Balanced</span>
+            </button>
+            <button type="button" onclick="selectModel('Auralis Vision (Images)')" class="w-full text-left px-3 py-2 text-xs hover:bg-paper-subtle text-paper-text font-medium flex items-center justify-between gap-2">
+              <span class="truncate">Auralis Vision (4K Image)</span>
+              <span class="text-[10px] bg-paper-subtle text-paper-muted px-1.5 py-0.5 rounded font-semibold shrink-0">Visuals</span>
+            </button>
+            <button type="button" onclick="selectModel('Auralis Motion (Videos)')" class="w-full text-left px-3 py-2 text-xs hover:bg-paper-subtle text-paper-text font-medium flex items-center justify-between gap-2">
+              <span class="truncate">Auralis Motion (HD Video)</span>
+              <span class="text-[10px] bg-paper-subtle text-paper-muted px-1.5 py-0.5 rounded font-semibold shrink-0">Motion</span>
+            </button>
+            <button type="button" onclick="selectModel('Auralis Copywriter (Posts)')" class="w-full text-left px-3 py-2 text-xs hover:bg-paper-subtle text-paper-text font-medium flex items-center justify-between gap-2">
+              <span class="truncate">Auralis Copywriter (Social)</span>
+              <span class="text-[10px] bg-paper-subtle text-paper-muted px-1.5 py-0.5 rounded font-semibold shrink-0">Editorial</span>
+            </button>
+          </div>
         </div>
       </div>
 
       <!-- Action Buttons & Avatar -->
-      <div class="flex items-center gap-3">
-        <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-paper-surface rounded-full border border-paper-border text-xs font-medium text-paper-muted">
+      <div class="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+        <div class="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-paper-surface rounded-full border border-paper-border text-xs font-medium text-paper-muted">
           <span class="w-2 h-2 rounded-full bg-emerald-700"></span>
           <span>Studio Ready</span>
         </div>
 
-        <button onclick="shareChat()" class="w-9 h-9 flex items-center justify-center rounded-xl bg-paper-surface border border-paper-border text-paper-muted hover:text-paper-text hover:bg-paper-subtle transition-colors" title="Share Project">
+        <button type="button" onclick="shareChat()" class="w-9 h-9 flex items-center justify-center rounded-xl bg-paper-surface border border-paper-border text-paper-muted hover:text-paper-text hover:bg-paper-subtle transition-colors shrink-0" title="Share Project" aria-label="Share Project">
           <i data-lucide="share-2" class="w-4 h-4"></i>
         </button>
 
-        <button onclick="showToast('Workspace settings')" class="w-9 h-9 flex items-center justify-center rounded-xl bg-paper-surface border border-paper-border text-paper-muted hover:text-paper-text hover:bg-paper-subtle transition-colors" title="Settings">
+        <button type="button" onclick="showToast('Workspace settings')" class="hidden sm:flex w-9 h-9 items-center justify-center rounded-xl bg-paper-surface border border-paper-border text-paper-muted hover:text-paper-text hover:bg-paper-subtle transition-colors shrink-0" title="Settings" aria-label="Settings">
           <i data-lucide="more-vertical" class="w-4 h-4"></i>
         </button>
 
-        <div class="w-9 h-9 rounded-xl overflow-hidden border border-paper-border cursor-pointer">
+        <div class="w-9 h-9 rounded-xl overflow-hidden border border-paper-border cursor-pointer shrink-0">
           <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80" alt="Creator portrait" class="w-full h-full object-cover">
         </div>
       </div>
     </header>
 
     <!-- Scrollable Chat Body Container -->
-    <div id="chatScrollArea" class="flex-1 overflow-y-auto px-4 md:px-8 py-4 flex flex-col justify-start">
-      <div class="max-w-3xl mx-auto w-full flex flex-col h-full">
+    <div id="chatScrollArea" class="flex-1 min-h-0 overflow-y-auto px-3 sm:px-6 md:px-8 py-4">
+      <div class="max-w-3xl mx-auto w-full min-w-0">
 
         <!-- ================= HERO GREETING SCREEN ================= -->
-        <div id="welcomeHero" class="flex-1 flex flex-col items-center justify-center text-center my-auto transition-opacity duration-300">
-          <div class="mb-5">
+        <div id="welcomeHero" class="flex flex-col items-center justify-center text-center py-4 sm:py-8 transition-opacity duration-300">
+          <div class="mb-4 sm:mb-5">
             <div class="w-14 h-14 bg-paper-surface border border-paper-border rounded-2xl flex items-center justify-center text-accent mx-auto">
               <svg class="w-7 h-7 fill-current" viewBox="0 0 24 24">
                 <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
@@ -238,87 +252,22 @@
             </div>
           </div>
 
-          <h1 class="text-3xl md:text-4xl font-bold text-paper-text tracking-tight mb-2">
+          <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-paper-text tracking-tight mb-2">
             Welcome Back, Creator
           </h1>
-          <p class="text-paper-muted font-normal text-base md:text-lg mb-8 max-w-lg">
+          <p class="text-paper-muted font-normal text-sm sm:text-base md:text-lg mb-4 sm:mb-6 max-w-lg">
             What vision do you want to bring to life today?
           </p>
         </div>
 
         <!-- ================= ACTIVE CONVERSATION STREAM ================= -->
-        <div id="conversationStream" class="hidden space-y-6 pb-6 pt-2"></div>
-
-        <!-- ================= INPUT BOX ================= -->
-        <div class="sticky bottom-0 bg-gradient-to-t from-paper-bg via-paper-bg to-transparent pt-4 pb-2">
-          <div class="bg-paper-surface rounded-2xl border border-paper-border p-3 transition-colors focus-within:border-accent">
-
-            <!-- Quick Mode Select Pills -->
-            <div class="flex items-center gap-1.5 pb-2 border-b border-paper-border/70 overflow-x-auto text-xs font-semibold text-paper-muted mb-2">
-              <span class="text-[11px] text-paper-faint px-1">Generate:</span>
-              <button onclick="setFastMode('image')" id="pill-image" class="px-2.5 py-1 rounded-lg bg-paper-subtle hover:bg-accent-soft hover:text-accent text-paper-muted transition-colors flex items-center gap-1.5">
-                <i data-lucide="image" class="w-3.5 h-3.5"></i>
-                <span>Image</span>
-              </button>
-              <button onclick="setFastMode('video')" id="pill-video" class="px-2.5 py-1 rounded-lg bg-paper-subtle hover:bg-accent-soft hover:text-accent text-paper-muted transition-colors flex items-center gap-1.5">
-                <i data-lucide="video" class="w-3.5 h-3.5"></i>
-                <span>Video</span>
-              </button>
-              <button onclick="setFastMode('post')" id="pill-post" class="px-2.5 py-1 rounded-lg bg-paper-subtle hover:bg-accent-soft hover:text-accent text-paper-muted transition-colors flex items-center gap-1.5">
-                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-                <span>Social Post</span>
-              </button>
-              <button onclick="setFastMode('chat')" id="pill-chat" class="px-2.5 py-1 rounded-lg bg-accent-soft text-accent transition-colors flex items-center gap-1.5">
-                <i data-lucide="bot" class="w-3.5 h-3.5"></i>
-                <span>Smart AI</span>
-              </button>
-            </div>
-
-            <!-- Text Input Area -->
-            <div class="relative">
-              <textarea
-                id="userInput"
-                rows="2"
-                placeholder="Ask anything... (e.g., 'Generate a warm architectural interior', 'Create a 10s coastal clip', 'Draft a LinkedIn post')"
-                class="w-full resize-none border-0 bg-transparent p-2 text-sm text-paper-text placeholder-paper-faint focus:ring-0 focus:outline-none"
-                onkeydown="handleKeyPress(event)"
-              ></textarea>
-            </div>
-
-            <!-- Input Bottom Toolbar -->
-            <div class="flex items-center justify-between pt-1">
-              <div class="flex items-center gap-1">
-                <button onclick="document.getElementById('mockUpload').click()" class="w-8 h-8 rounded-lg flex items-center justify-center text-paper-muted hover:text-paper-text hover:bg-paper-subtle transition-colors" title="Attach file or reference">
-                  <i data-lucide="plus" class="w-4 h-4"></i>
-                </button>
-                <input type="file" id="mockUpload" class="hidden" onchange="showToast('Reference file attached')">
-
-                <button onclick="toggleVoice()" id="voiceBtn" class="w-8 h-8 rounded-lg flex items-center justify-center text-paper-muted hover:text-paper-text hover:bg-paper-subtle transition-colors" title="Voice Input">
-                  <i data-lucide="mic" class="w-4 h-4"></i>
-                </button>
-                <span id="voiceStatus" class="hidden text-[11px] text-accent font-medium ml-1">Listening...</span>
-              </div>
-
-              <div class="flex items-center gap-2">
-                <span class="text-[11px] text-paper-faint hidden sm:inline">Press Enter to Send</span>
-                <button
-                  onclick="sendMessage()"
-                  id="sendBtn"
-                  class="w-9 h-9 bg-accent hover:bg-accent-hover text-white rounded-xl flex items-center justify-center transition-colors"
-                >
-                  <i data-lucide="arrow-up" class="w-5 h-5"></i>
-                </button>
-              </div>
-            </div>
-
-          </div>
-        </div>
+        <div id="conversationStream" class="hidden space-y-5 pb-4 pt-1"></div>
 
         <!-- ================= 3 FEATURE CARDS ================= -->
-        <div id="featureCardsSection" class="grid grid-cols-1 md:grid-cols-3 gap-3.5 my-6">
+        <div id="featureCardsSection" class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-3.5 my-4 sm:my-6">
 
           <!-- Card 1: Image -->
-          <div onclick="quickTrigger('image')" class="p-4 bg-paper-surface rounded-2xl border border-paper-border hover:border-accent-border transition-colors cursor-pointer group flex flex-col justify-between">
+          <div onclick="quickTrigger('image')" class="p-4 bg-paper-surface rounded-2xl border border-paper-border hover:border-accent-border transition-colors cursor-pointer group flex flex-col justify-between min-w-0">
             <div>
               <div class="w-8 h-8 rounded-xl bg-paper-subtle text-accent flex items-center justify-center mb-3">
                 <i data-lucide="image" class="w-4 h-4"></i>
@@ -335,7 +284,7 @@
           </div>
 
           <!-- Card 2: Video -->
-          <div onclick="quickTrigger('video')" class="p-4 bg-paper-surface rounded-2xl border border-paper-border hover:border-accent-border transition-colors cursor-pointer group flex flex-col justify-between">
+          <div onclick="quickTrigger('video')" class="p-4 bg-paper-surface rounded-2xl border border-paper-border hover:border-accent-border transition-colors cursor-pointer group flex flex-col justify-between min-w-0">
             <div>
               <div class="w-8 h-8 rounded-xl bg-paper-subtle text-accent flex items-center justify-center mb-3">
                 <i data-lucide="video" class="w-4 h-4"></i>
@@ -352,7 +301,7 @@
           </div>
 
           <!-- Card 3: Social Media Posts -->
-          <div onclick="quickTrigger('post')" class="p-4 bg-paper-surface rounded-2xl border border-paper-border hover:border-accent-border transition-colors cursor-pointer group flex flex-col justify-between">
+          <div onclick="quickTrigger('post')" class="p-4 bg-paper-surface rounded-2xl border border-paper-border hover:border-accent-border transition-colors cursor-pointer group flex flex-col justify-between min-w-0">
             <div>
               <div class="w-8 h-8 rounded-xl bg-paper-subtle text-accent flex items-center justify-center mb-3">
                 <i data-lucide="share-2" class="w-4 h-4"></i>
@@ -371,7 +320,7 @@
         </div>
 
         <!-- ================= FOOTER TAG ================= -->
-        <div class="flex justify-center pb-4">
+        <div class="flex justify-center pt-1 pb-2">
           <div class="bg-paper-surface border border-paper-border text-paper-muted text-xs font-medium px-4 py-1.5 rounded-full flex items-center gap-2">
             <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
             <span>Auralis Studio — Warm Editorial Theme</span>
@@ -381,12 +330,82 @@
       </div>
     </div>
 
+    <!-- ================= FIXED INPUT BOX (ALWAYS VISIBLE WITH SEND BUTTON) ================= -->
+    <div id="composerBar" class="px-3 sm:px-6 md:px-8 pt-2 pb-3 sm:pb-4 bg-paper-bg/95 backdrop-blur-sm border-t border-paper-border/70 shrink-0 z-20">
+      <div class="max-w-3xl mx-auto w-full min-w-0">
+        <div class="bg-paper-surface rounded-2xl border border-paper-border p-2.5 sm:p-3 transition-colors focus-within:border-accent">
+
+          <!-- Quick Mode Select Pills -->
+          <div class="flex items-center gap-1.5 pb-2 border-b border-paper-border/70 overflow-x-auto text-xs font-semibold text-paper-muted mb-2">
+            <span class="text-[11px] text-paper-faint px-1 shrink-0">Generate:</span>
+            <button type="button" onclick="setFastMode('image')" id="pill-image" class="px-2.5 py-1 rounded-lg bg-paper-subtle hover:bg-accent-soft hover:text-accent text-paper-muted transition-colors flex items-center gap-1.5 whitespace-nowrap shrink-0">
+              <i data-lucide="image" class="w-3.5 h-3.5"></i>
+              <span>Image</span>
+            </button>
+            <button type="button" onclick="setFastMode('video')" id="pill-video" class="px-2.5 py-1 rounded-lg bg-paper-subtle hover:bg-accent-soft hover:text-accent text-paper-muted transition-colors flex items-center gap-1.5 whitespace-nowrap shrink-0">
+              <i data-lucide="video" class="w-3.5 h-3.5"></i>
+              <span>Video</span>
+            </button>
+            <button type="button" onclick="setFastMode('post')" id="pill-post" class="px-2.5 py-1 rounded-lg bg-paper-subtle hover:bg-accent-soft hover:text-accent text-paper-muted transition-colors flex items-center gap-1.5 whitespace-nowrap shrink-0">
+              <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+              <span>Social Post</span>
+            </button>
+            <button type="button" onclick="setFastMode('chat')" id="pill-chat" class="px-2.5 py-1 rounded-lg bg-accent-soft text-accent transition-colors flex items-center gap-1.5 whitespace-nowrap shrink-0">
+              <i data-lucide="bot" class="w-3.5 h-3.5"></i>
+              <span>Smart AI</span>
+            </button>
+          </div>
+
+          <!-- Text Input Area + Send Button -->
+          <div class="flex items-end gap-2">
+            <textarea
+              id="userInput"
+              rows="1"
+              placeholder="Ask anything... (e.g., 'Generate a warm architectural interior', 'Create a 10s coastal clip', 'Draft a LinkedIn post')"
+              class="flex-1 min-w-0 resize-none border-0 bg-transparent px-2 py-2 text-sm leading-snug text-paper-text placeholder-paper-faint focus:ring-0 focus:outline-none max-h-28 overflow-y-auto"
+              onkeydown="handleKeyPress(event)"
+              oninput="autoResizeTextarea(this)"
+            ></textarea>
+
+            <button
+              type="button"
+              onclick="sendMessage()"
+              id="sendBtn"
+              class="h-10 px-3.5 sm:px-4 bg-accent hover:bg-accent-hover active:scale-95 text-white rounded-xl flex items-center justify-center gap-1.5 transition-all shrink-0 text-xs sm:text-sm font-semibold"
+              aria-label="Send message"
+            >
+              <span>Send</span>
+              <i data-lucide="arrow-up" class="w-4 h-4"></i>
+            </button>
+          </div>
+
+          <!-- Input Bottom Toolbar -->
+          <div class="flex items-center justify-between gap-2 pt-1.5 mt-1 border-t border-paper-border/50">
+            <div class="flex items-center gap-1 min-w-0">
+              <button type="button" onclick="document.getElementById('mockUpload').click()" class="w-8 h-8 rounded-lg flex items-center justify-center text-paper-muted hover:text-paper-text hover:bg-paper-subtle transition-colors shrink-0" title="Attach file or reference" aria-label="Attach file">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+              </button>
+              <input type="file" id="mockUpload" class="hidden" onchange="showToast('Reference file attached')">
+
+              <button type="button" onclick="toggleVoice()" id="voiceBtn" class="w-8 h-8 rounded-lg flex items-center justify-center text-paper-muted hover:text-paper-text hover:bg-paper-subtle transition-colors shrink-0" title="Voice Input" aria-label="Voice input">
+                <i data-lucide="mic" class="w-4 h-4"></i>
+              </button>
+              <span id="voiceStatus" class="hidden text-[11px] text-accent font-medium ml-1 truncate">Listening...</span>
+            </div>
+
+            <span class="text-[11px] text-paper-faint hidden sm:inline">Press Enter to Send</span>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
   </main>
 
   <!-- ================= NOTIFICATION TOAST ================= -->
-  <div id="toast" class="fixed bottom-6 right-6 bg-paper-text text-paper-bg px-4 py-2.5 rounded-xl border border-paper-border flex items-center gap-2.5 transform translate-y-20 opacity-0 transition-all duration-300 z-50 text-xs">
-    <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>
-    <span id="toastMsg">Action completed</span>
+  <div id="toast" class="fixed bottom-24 left-4 right-4 sm:bottom-6 sm:left-auto sm:right-6 bg-paper-text text-paper-bg px-4 py-2.5 rounded-xl border border-paper-border flex items-center gap-2.5 transform translate-y-20 opacity-0 transition-all duration-300 z-50 text-xs sm:max-w-sm">
+    <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+    <span id="toastMsg" class="truncate">Action completed</span>
   </div>
 
   <!-- ================= JAVASCRIPT ================= -->
@@ -394,6 +413,21 @@
     lucide.createIcons();
     let currentMode = 'auto';
     let isListening = false;
+
+    function autoResizeTextarea(el) {
+      el.style.height = 'auto';
+      el.style.height = Math.min(el.scrollHeight, 112) + 'px';
+    }
+
+    function openMobileSidebar() {
+      document.getElementById('sidebar').classList.remove('-translate-x-full');
+      document.getElementById('sidebarBackdrop').classList.remove('hidden');
+    }
+
+    function closeMobileSidebar() {
+      document.getElementById('sidebar').classList.add('-translate-x-full');
+      document.getElementById('sidebarBackdrop').classList.add('hidden');
+    }
 
     function toggleDropdown(id) {
       document.getElementById(id).classList.toggle('hidden');
@@ -416,9 +450,9 @@
       ['image', 'video', 'post', 'chat'].forEach(m => {
         const el = document.getElementById(`pill-${m}`);
         if (m === mode) {
-          el.className = 'px-2.5 py-1 rounded-lg bg-accent-soft text-accent font-semibold transition-colors flex items-center gap-1.5';
+          el.className = 'px-2.5 py-1 rounded-lg bg-accent-soft text-accent font-semibold transition-colors flex items-center gap-1.5 whitespace-nowrap shrink-0';
         } else {
-          el.className = 'px-2.5 py-1 rounded-lg bg-paper-subtle hover:bg-accent-soft hover:text-accent text-paper-muted transition-colors flex items-center gap-1.5';
+          el.className = 'px-2.5 py-1 rounded-lg bg-paper-subtle hover:bg-accent-soft hover:text-accent text-paper-muted transition-colors flex items-center gap-1.5 whitespace-nowrap shrink-0';
         }
       });
       const input = document.getElementById('userInput');
@@ -445,11 +479,13 @@
     }
 
     function startNewChat() {
+      const input = document.getElementById('userInput');
       document.getElementById('conversationStream').innerHTML = '';
       document.getElementById('conversationStream').classList.add('hidden');
       document.getElementById('welcomeHero').classList.remove('hidden');
       document.getElementById('featureCardsSection').classList.remove('hidden');
-      document.getElementById('userInput').value = '';
+      input.value = '';
+      input.style.height = 'auto';
       setFastMode('chat');
       showToast('Started a fresh session');
     }
@@ -464,6 +500,9 @@
     }
 
     function shareChat() {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(window.location.href).catch(() => {});
+      }
       showToast('Project link copied');
     }
 
@@ -513,13 +552,17 @@
         setFastMode('post');
         input.value = "Draft a clear, engaging launch post for our new creative studio workflow.";
       }
+      autoResizeTextarea(input);
       sendMessage();
     }
 
     function sendMessage() {
       const input = document.getElementById('userInput');
       const text = input.value.trim();
-      if (!text) return;
+      if (!text) {
+        input.focus();
+        return;
+      }
 
       document.getElementById('welcomeHero').classList.add('hidden');
       document.getElementById('featureCardsSection').classList.add('hidden');
@@ -528,6 +571,8 @@
 
       appendUserMessage(text);
       input.value = '';
+      input.style.height = 'auto';
+      input.focus();
 
       const lower = text.toLowerCase();
       let detectedType = currentMode;
@@ -555,9 +600,9 @@
     function appendUserMessage(text) {
       const stream = document.getElementById('conversationStream');
       const div = document.createElement('div');
-      div.className = "flex justify-end gap-3 items-start";
+      div.className = "flex justify-end gap-2.5 sm:gap-3 items-start";
       div.innerHTML = `
-        <div class="max-w-xl bg-paper-subtle text-paper-text border border-paper-border px-4 py-3 rounded-2xl rounded-tr-none text-sm leading-relaxed">
+        <div class="max-w-[82%] sm:max-w-xl bg-paper-subtle text-paper-text border border-paper-border px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-2xl rounded-tr-none text-xs sm:text-sm leading-relaxed break-words">
           <p>${escapeHtml(text)}</p>
         </div>
         <div class="w-8 h-8 rounded-lg overflow-hidden shrink-0 border border-paper-border">
@@ -572,7 +617,7 @@
       const stream = document.getElementById('conversationStream');
       const div = document.createElement('div');
       div.id = id;
-      div.className = "flex gap-3 items-start";
+      div.className = "flex gap-2.5 sm:gap-3 items-start";
 
       let statusMsg = "Preparing response...";
       if (type === 'image') statusMsg = "Rendering visual composition...";
@@ -583,7 +628,7 @@
         <div class="w-8 h-8 bg-accent-soft border border-accent-border rounded-lg flex items-center justify-center text-accent shrink-0">
           <i data-lucide="sparkles" class="w-4 h-4 animate-spin"></i>
         </div>
-        <div class="bg-paper-surface border border-paper-border rounded-2xl rounded-tl-none p-4 max-w-lg w-full">
+        <div class="bg-paper-surface border border-paper-border rounded-2xl rounded-tl-none p-3.5 sm:p-4 max-w-lg w-full min-w-0">
           <div class="flex items-center gap-2 mb-2 text-xs font-semibold text-accent">
             <span>${statusMsg}</span>
           </div>
@@ -604,31 +649,25 @@
     function renderGeneratedImage(prompt) {
       const stream = document.getElementById('conversationStream');
       const div = document.createElement('div');
-      div.className = "flex gap-3 items-start";
+      div.className = "flex gap-2.5 sm:gap-3 items-start";
       const imageUrl = "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=85";
 
       div.innerHTML = `
         <div class="w-8 h-8 bg-accent-soft border border-accent-border rounded-lg flex items-center justify-center text-accent shrink-0">
           <i data-lucide="image" class="w-4 h-4"></i>
         </div>
-        <div class="bg-paper-surface border border-paper-border rounded-2xl rounded-tl-none p-4 max-w-xl w-full">
-          <div class="flex items-center justify-between pb-2 mb-3 border-b border-paper-border/70">
+        <div class="bg-paper-surface border border-paper-border rounded-2xl rounded-tl-none p-3.5 sm:p-4 max-w-xl w-full min-w-0">
+          <div class="flex items-center justify-between gap-2 pb-2 mb-3 border-b border-paper-border/70">
             <div class="flex items-center gap-2">
               <span class="text-xs font-bold text-paper-text">Auralis Vision</span>
               <span class="text-[10px] bg-accent-soft text-accent px-2 py-0.5 rounded-full font-semibold">Ready</span>
             </div>
-            <span class="text-[11px] text-paper-faint">1200 × 800 • Natural Light</span>
           </div>
-          <div class="relative rounded-xl overflow-hidden border border-paper-border mb-3 bg-paper-subtle">
-            <img src="${imageUrl}" alt="Generated architectural scene" class="w-full h-64 object-cover">
-          </div>
-          <p class="text-xs text-paper-muted mb-3"><span class="font-semibold text-paper-text">Prompt:</span> ${escapeHtml(prompt)}</p>
-          <div class="flex items-center justify-between text-xs text-paper-muted">
-            <span>Aspect: 3:2</span>
-            <button onclick="showToast('Image downloaded')" class="text-accent hover:underline font-semibold flex items-center gap-1">
-              <i data-lucide="download" class="w-3.5 h-3.5"></i>
-              <span>Download</span>
-            </button>
+          <img src="${imageUrl}" alt="Generated architectural scene" class="w-full h-48 sm:h-64 object-cover rounded-xl border border-paper-border mb-3">
+          <p class="text-xs text-paper-muted mb-3 break-words"><b class="text-paper-text">Prompt:</b> ${escapeHtml(prompt)}</p>
+          <div class="flex items-center justify-between gap-2 text-xs text-paper-muted">
+            <span class="truncate">1200 × 800 • 3:2</span>
+            <button type="button" onclick="showToast('Image downloaded')" class="text-accent font-semibold hover:underline shrink-0">Download</button>
           </div>
         </div>
       `;
@@ -639,34 +678,28 @@
     function renderGeneratedVideo(prompt) {
       const stream = document.getElementById('conversationStream');
       const div = document.createElement('div');
-      div.className = "flex gap-3 items-start";
-      const posterUrl = "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80";
+      div.className = "flex gap-2.5 sm:gap-3 items-start";
+      const poster = "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80";
 
       div.innerHTML = `
         <div class="w-8 h-8 bg-accent-soft border border-accent-border rounded-lg flex items-center justify-center text-accent shrink-0">
           <i data-lucide="video" class="w-4 h-4"></i>
         </div>
-        <div class="bg-paper-surface border border-paper-border rounded-2xl rounded-tl-none p-4 max-w-xl w-full">
-          <div class="flex items-center justify-between pb-2 mb-3 border-b border-paper-border/70">
-            <div class="flex items-center gap-2">
-              <span class="text-xs font-bold text-paper-text">Auralis Motion</span>
-              <span class="text-[10px] bg-paper-subtle text-paper-muted px-2 py-0.5 rounded-full font-semibold">10s • 24 FPS</span>
-            </div>
-            <span class="text-[11px] text-paper-faint">1080p</span>
+        <div class="bg-paper-surface border border-paper-border rounded-2xl rounded-tl-none p-3.5 sm:p-4 max-w-xl w-full min-w-0">
+          <div class="flex items-center justify-between gap-2 pb-2 mb-3 border-b border-paper-border/70">
+            <span class="text-xs font-bold text-paper-text">Auralis Motion</span>
+            <span class="text-[10px] bg-paper-subtle text-paper-muted px-2 py-0.5 rounded-full font-semibold shrink-0">10s • 24 FPS</span>
           </div>
-          <div class="relative rounded-xl overflow-hidden border border-paper-border mb-3 bg-paper-subtle h-56 flex items-center justify-center">
-            <img src="${posterUrl}" alt="Coastal frame preview" class="w-full h-full object-cover">
-            <button onclick="showToast('Playing motion preview')" class="absolute w-12 h-12 rounded-full bg-paper-surface/95 border border-paper-border text-accent flex items-center justify-center hover:scale-105 transition-transform">
-              <i data-lucide="play" class="w-5 h-5 fill-current ml-0.5"></i>
+          <div class="relative rounded-xl overflow-hidden border border-paper-border mb-3 h-44 sm:h-56">
+            <img src="${poster}" alt="Video preview" class="w-full h-full object-cover">
+            <button type="button" onclick="showToast('Playing motion preview')" class="absolute inset-0 m-auto w-12 h-12 rounded-full bg-paper-surface text-accent border border-paper-border flex items-center justify-center shadow-md">
+              <i data-lucide="play" class="w-5 h-5"></i>
             </button>
           </div>
-          <p class="text-xs text-paper-muted mb-3"><span class="font-semibold text-paper-text">Prompt:</span> ${escapeHtml(prompt)}</p>
-          <div class="flex items-center justify-between text-xs text-paper-muted">
-            <span>Motion: Gentle pan</span>
-            <button onclick="showToast('Video export started')" class="text-accent hover:underline font-semibold flex items-center gap-1">
-              <i data-lucide="download" class="w-3.5 h-3.5"></i>
-              <span>Export MP4</span>
-            </button>
+          <p class="text-xs text-paper-muted mb-3 break-words"><b class="text-paper-text">Prompt:</b> ${escapeHtml(prompt)}</p>
+          <div class="flex items-center justify-between gap-2 text-xs text-paper-muted">
+            <span class="truncate">1080p • Motion preview</span>
+            <button type="button" onclick="showToast('Video export started')" class="text-accent font-semibold hover:underline shrink-0">Export MP4</button>
           </div>
         </div>
       `;
@@ -677,25 +710,28 @@
     function renderGeneratedPost(prompt) {
       const stream = document.getElementById('conversationStream');
       const div = document.createElement('div');
-      div.className = "flex gap-3 items-start";
-      const sampleCopy = `A calmer way to move from idea to finished work.\n\nWe built this workflow around clarity, clean structure, and less friction—so more energy goes into the craft itself.\n\nWhat part of your daily creative process would you simplify first?\n\n#DesignProcess #CreativeWorkflow #ProductCraft #StudioNotes`;
+      div.className = "flex gap-2.5 sm:gap-3 items-start";
+      const copy = `A calmer way to move from idea to finished work.
+
+We built this workflow around clarity, clean structure, and less friction—so more energy goes into the craft itself.
+
+What part of your daily creative process would you simplify first?
+
+#DesignProcess #CreativeWorkflow #ProductCraft #StudioNotes`;
 
       div.innerHTML = `
         <div class="w-8 h-8 bg-accent-soft border border-accent-border rounded-lg flex items-center justify-center text-accent shrink-0">
           <i data-lucide="share-2" class="w-4 h-4"></i>
         </div>
-        <div class="bg-paper-surface border border-paper-border rounded-2xl rounded-tl-none p-4 max-w-xl w-full">
-          <div class="flex items-center justify-between pb-2 mb-3 border-b border-paper-border/70">
+        <div class="bg-paper-surface border border-paper-border rounded-2xl rounded-tl-none p-3.5 sm:p-4 max-w-xl w-full min-w-0">
+          <div class="flex items-center justify-between gap-2 pb-2 mb-3 border-b border-paper-border/70">
             <span class="text-xs font-bold text-paper-text">Auralis Copywriter</span>
-            <span class="text-[10px] bg-paper-subtle text-paper-muted px-2 py-0.5 rounded-full font-semibold">Draft Ready</span>
+            <span class="text-[10px] bg-accent-soft text-accent px-2 py-0.5 rounded-full font-semibold shrink-0">Draft Ready</span>
           </div>
-          <p class="text-xs text-paper-muted mb-2">Topic: <span class="font-medium text-paper-text">${escapeHtml(prompt)}</span></p>
-          <pre class="whitespace-pre-wrap font-sans text-xs text-paper-text bg-paper-subtle p-3 rounded-xl border border-paper-border mb-3 leading-relaxed">${escapeHtml(sampleCopy)}</pre>
+          <p class="text-xs text-paper-muted mb-3 break-words">Topic: <b class="text-paper-text">${escapeHtml(prompt)}</b></p>
+          <pre class="whitespace-pre-wrap break-words font-sans text-xs text-paper-text bg-paper-subtle p-3 sm:p-4 rounded-xl border border-paper-border mb-3 leading-relaxed">${escapeHtml(copy)}</pre>
           <div class="flex justify-end">
-            <button onclick="copyPostText(this)" class="text-xs font-semibold text-accent hover:underline flex items-center gap-1">
-              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-              <span>Copy Draft</span>
-            </button>
+            <button type="button" onclick="copyPostText(this)" class="text-xs font-semibold text-accent hover:underline">Copy Draft</button>
           </div>
         </div>
       `;
@@ -706,14 +742,14 @@
     function renderGeneralChat(text) {
       const stream = document.getElementById('conversationStream');
       const div = document.createElement('div');
-      div.className = "flex gap-3 items-start";
+      div.className = "flex gap-2.5 sm:gap-3 items-start";
       div.innerHTML = `
         <div class="w-8 h-8 bg-accent-soft border border-accent-border rounded-lg flex items-center justify-center text-accent shrink-0">
           <i data-lucide="bot" class="w-4 h-4"></i>
         </div>
-        <div class="bg-paper-surface border border-paper-border rounded-2xl rounded-tl-none p-4 max-w-xl w-full text-xs text-paper-muted leading-relaxed">
-          <p class="font-bold text-paper-text mb-1">Auralis Studio Assistant</p>
-          <p>Got it — you asked about: <span class="font-semibold text-paper-text">"${escapeHtml(text)}"</span>. Use the <strong>Image</strong>, <strong>Video</strong>, or <strong>Social Post</strong> pills above whenever you want a specific asset type generated.</p>
+        <div class="bg-paper-surface border border-paper-border rounded-2xl rounded-tl-none p-3.5 sm:p-4 max-w-xl w-full min-w-0 text-xs text-paper-muted leading-relaxed break-words">
+          <p class="font-bold text-paper-text mb-1.5">Auralis Studio Assistant</p>
+          <p>Got it — you asked about: <b class="text-paper-text">"${escapeHtml(text)}"</b>. Use the Image, Video, or Social Post pills above whenever you want a specific asset format.</p>
         </div>
       `;
       stream.appendChild(div);
@@ -741,5 +777,6 @@
       area.scrollTop = area.scrollHeight;
     }
   </script>
+
 </body>
 </html>
