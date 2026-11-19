@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Auralis AI - All-in-One Image, Video & Post Generator</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+          colors: {
+            paper: {
+              bg: '#FAF8F5',
+              surface: '#FFFFFF',
+              subtle: '#F3EFEA',
+              rail: '#F5F1EC',
+              border: '#E5DDD3',
+              text: '#231D1A',
+              muted: '#6E645C',
+              faint: '#9A8F86'
+            },
+            accent: {
+              DEFAULT: '#8C4A27',
+              hover: '#733B1E',
+              soft: '#F4EAE3',
+              border: '#DFC5B4'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .bg-editorial-grid {
+      background-color: #FAF8F5;
+      background-image: radial-gradient(#DDD4C8 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #D6CCC0;
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="font-sans antialiased h-screen overflow-hidden flex bg-paper-bg text-paper-text">
+
+  <!-- ================= SIDEBAR (WARM EDITORIAL LIGHT) ================= -->
+  <aside class="w-72 bg-paper-rail flex flex-col justify-between border-r border-paper-border select-none z-20 shrink-0">
+    <div class="p-5 flex flex-col h-full overflow-hidden">
+
+      <!-- Brand & Collapse Header -->
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 bg-accent rounded-lg flex items-center justify-center text-white">
+            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+            </svg>
+          </div>
+          <span class="text-paper-text font-bold text-lg tracking-tight">Cravo</span>
+        </div>
+        <button onclick="showToast('Sidebar pinned')" class="text-paper-muted hover:text-paper-text transition-colors p-1.5 rounded-lg hover:bg-paper-subtle" title="Collapse sidebar">
+          <i data-lucide="panel-left-close" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- New Chat Button -->
+      <button onclick="startNewChat()" class="w-full bg-accent hover:bg-accent-hover text-white font-semibold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors mb-6 text-sm">
+        <i data-lucide="square-pen" class="w-4 h-4"></i>
+        <span>New Session</span>
+      </button>
+
+      <!-- Nav Items / Features -->
+      <div class="space-y-1 mb-6">
+        <span class="text-[11px] font-semibold text-paper-faint uppercase tracking-wider px-3 mb-1.5 block">Workspace</span>
+
+        <button onclick="setMode('chat')" class="w-full flex items-center gap-3 px-3 py-2 rounded-xl bg-paper-surface text-paper-text border border-paper-border text-sm font-semibold transition-all">
+          <i data-lucide="message-square" class="w-4 h-4 text-accent"></i>
+          <span>AI Chat</span>
+        </button>
+
+        <button onclick="setMode('image')" class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-paper-muted hover:text-paper-text hover:bg-paper-subtle text-sm font-medium transition-all">
+          <i data-lucide="image" class="w-4 h-4 text-paper-muted"></i>
+          <span>Image Generator</span>
+        </button>
+
+        <button onclick="setMode('video')" class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-paper-muted hover:text-paper-text hover:bg-paper-subtle text-sm font-medium transition-all">
+          <i data-lucide="video" class="w-4 h-4 text-paper-muted"></i>
+          <span>Video Creator</span>
+        </button>
+
+        <button onclick="setMode('post')" class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-paper-muted hover:text-paper-text hover:bg-paper-subtle text-sm font-medium transition-all">
+          <i data-lucide="share-2" class="w-4 h-4 text-paper-muted"></i>
+          <span>Social Post Studio</span>
+        </button>
+
+        <button onclick="showToast('Opening saved studio library')" class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-paper-muted hover:text-paper-text hover:bg-paper-subtle text-sm font-medium transition-all">
+          <i data-lucide="library" class="w-4 h-4 text-paper-muted"></i>
+          <span>Library</span>
+        </button>
+      </div>
+
+      <!-- Chat History -->
+      <div class="flex-1 overflow-y-auto pr-1 -mr-2 space-y-5">
+        <div>
+          <span class="text-[11px] font-semibold text-paper-faint uppercase tracking-wider px-3 mb-2 block">Today</span>
+          <div class="space-y-1">
+            <button onclick="loadHistory('image_demo')" class="w-full text-left px-3 py-2 rounded-lg text-xs text-paper-muted hover:bg-paper-subtle hover:text-paper-text truncate transition-colors flex items-center gap-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
+              <span class="truncate">Architectural Courtyard Visuals</span>
+            </button>
+            <button onclick="loadHistory('video_demo')" class="w-full text-left px-3 py-2 rounded-lg text-xs text-paper-muted hover:bg-paper-subtle hover:text-paper-text truncate transition-colors flex items-center gap-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-700"></span>
+              <span class="truncate">Coastal Sunset Motion Clip</span>
+            </button>
+            <button onclick="loadHistory('post_demo')" class="w-full text-left px-3 py-2 rounded-lg text-xs text-paper-muted hover:bg-paper-subtle hover:text-paper-text truncate transition-colors flex items-center gap-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-stone-500"></span>
+              <span class="truncate">Brand Launch Editorial Post</span>
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <span class="text-[11px] font-semibold text-paper-faint uppercase tracking-wider px-3 mb-2 block">Yesterday</span>
+          <div class="space-y-1">
+            <button class="w-full text-left px-3 py-2 rounded-lg text-xs text-paper-muted hover:bg-paper-subtle hover:text-paper-text truncate transition-colors">
+              Prompt refinement notes
+            </button>
+            <button class="w-full text-left px-3 py-2 rounded-lg text-xs text-paper-muted hover:bg-paper-subtle hover:text-paper-text truncate transition-colors">
+              Campaign copy variations
+            </button>
+            <button class="w-full text-left px-3 py-2 rounded-lg text-xs text-paper-muted hover:bg-paper-subtle hover:text-paper-text truncate transition-colors">
+              Aspect ratio presets review
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Studio Plan Card -->
+      <div class="mt-4 pt-4 border-t border-paper-border">
+        <div class="p-4 rounded-2xl bg-paper-surface border border-paper-border">
+          <h4 class="text-paper-text text-xs font-bold mb-1 flex items-center gap-1.5">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5 text-accent"></i>
+            Studio Pro
+          </h4>
+          <p class="text-[11px] text-paper-muted leading-relaxed mb-3">
+            High-resolution renders, longer motion sequences, and multi-channel post drafts.
+          </p>
+          <button onclick="showToast('Studio Pro plan details opened')" class="w-full bg-paper-subtle hover:bg-accent-soft text-paper-text hover:text-accent border border-paper-border text-xs font-semibold py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-colors">
+            <span>View Plans</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </aside>
+
+  <!-- ================= MAIN CONTENT AREA ================= -->
+  <main class="flex-1 flex flex-col h-full bg-editorial-grid relative overflow-hidden">
+
+    <!-- Top Navigation Bar -->
+    <header class="h-16 px-8 flex items-center justify-between border-b border-paper-border/70 bg-paper-bg/90 backdrop-blur-sm z-10">
+      <!-- Model Selector Dropdown -->
+      <div class="relative">
+        <button id="modelBtn" onclick="toggleDropdown('modelMenu')" class="flex items-center gap-2 text-sm font-semibold text-paper-text bg-paper-surface px-3.5 py-2 rounded-xl border border-paper-border hover:bg-paper-subtle transition-colors">
+          <span class="w-2 h-2 rounded-full bg-accent"></span>
+          <span id="currentModelLabel">Auralis 1.0 (Studio Mode)</span>
+          <i data-lucide="chevron-down" class="w-4 h-4 text-paper-muted"></i>
+        </button>
+
+        <div id="modelMenu" class="hidden absolute top-12 left-0 w-64 bg-paper-surface rounded-xl border border-paper-border py-1.5 z-50">
+          <div class="px-3 py-1 text-[10px] font-bold text-paper-faint uppercase tracking-wider">AI Engines</div>
+          <button onclick="selectModel('Auralis 1.0 (Omni Studio)')" class="w-full text-left px-3 py-2 text-xs hover:bg-paper-subtle text-paper-text font-medium flex items-center justify-between">
+            <span>Auralis 1.0 (Auto Detect)</span>
+            <span class="text-[10px] bg-accent-soft text-accent px-1.5 py-0.5 rounded font-semibold">Balanced</span>
+          </button>
+          <button onclick="selectModel('Auralis Vision (Images)')" class="w-full text-left px-3 py-2 text-xs hover:bg-paper-subtle text-paper-text font-medium flex items-center justify-between">
+            <span>Auralis Vision (4K Image)</span>
+            <span class="text-[10px] bg-paper-subtle text-paper-muted px-1.5 py-0.5 rounded font-semibold">Visuals</span>
+          </button>
+          <button onclick="selectModel('Auralis Motion (Videos)')" class="w-full text-left px-3 py-2 text-xs hover:bg-paper-subtle text-paper-text font-medium flex items-center justify-between">
+            <span>Auralis Motion (HD Video)</span>
+            <span class="text-[10px] bg-paper-subtle text-paper-muted px-1.5 py-0.5 rounded font-semibold">Motion</span>
+          </button>
+          <button onclick="selectModel('Auralis Copywriter (Posts)')" class="w-full text-left px-3 py-2 text-xs hover:bg-paper-subtle text-paper-text font-medium flex items-center justify-between">
+            <span>Auralis Copywriter (Social)</span>
+            <span class="text-[10px] bg-paper-subtle text-paper-muted px-1.5 py-0.5 rounded font-semibold">Editorial</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Action Buttons & Avatar -->
+      <div class="flex items-center gap-3">
+        <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-paper-surface rounded-full border border-paper-border text-xs font-medium text-paper-muted">
+          <span class="w-2 h-2 rounded-full bg-emerald-700"></span>
+          <span>Studio Ready</span>
+        </div>
+
+        <button onclick="shareChat()" class="w-9 h-9 flex items-center justify-center rounded-xl bg-paper-surface border border-paper-border text-paper-muted hover:text-paper-text hover:bg-paper-subtle transition-colors" title="Share Project">
+          <i data-lucide="share-2" class="w-4 h-4"></i>
+        </button>
+
+        <button onclick="showToast('Workspace settings')" class="w-9 h-9 flex items-center justify-center rounded-xl bg-paper-surface border border-paper-border text-paper-muted hover:text-paper-text hover:bg-paper-subtle transition-colors" title="Settings">
+          <i data-lucide="more-vertical" class="w-4 h-4"></i>
+        </button>
+
+        <div class="w-9 h-9 rounded-xl overflow-hidden border border-paper-border cursor-pointer">
+          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80" alt="Creator portrait" class="w-full h-full object-cover">
+        </div>
+      </div>
+    </header>
+
+    <!-- Scrollable Chat Body Container -->
+    <div id="chatScrollArea" class="flex-1 overflow-y-auto px-4 md:px-8 py-4 flex flex-col justify-start">
+      <div class="max-w-3xl mx-auto w-full flex flex-col h-full">
+
+        <!-- ================= HERO GREETING SCREEN ================= -->
+        <div id="welcomeHero" class="flex-1 flex flex-col items-center justify-center text-center my-auto transition-opacity duration-300">
+          <div class="mb-5">
+            <div class="w-14 h-14 bg-paper-surface border border-paper-border rounded-2xl flex items-center justify-center text-accent mx-auto">
+              <svg class="w-7 h-7 fill-current" viewBox="0 0 24 24">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+              </svg>
+            </div>
+          </div>
+
+          <h1 class="text-3xl md:text-4xl font-bold text-paper-text tracking-tight mb-2">
+            Welcome Back, Creator
+          </h1>
+          <p class="text-paper-muted font-normal text-base md:text-lg mb-8 max-w-lg">
+            What vision do you want to bring to life today?
+          </p>
+        </div>
+
+        <!-- ================= ACTIVE CONVERSATION STREAM ================= -->
+        <div id="conversationStream" class="hidden space-y-6 pb-6 pt-2"></div>
+
+        <!-- ================= INPUT BOX ================= -->
+        <div class="sticky bottom-0 bg-gradient-to-t from-paper-bg via-paper-bg to-transparent pt-4 pb-2">
+          <div class="bg-paper-surface rounded-2xl border border-paper-border p-3 transition-colors focus-within:border-accent">
+
+            <!-- Quick Mode Select Pills -->
+            <div class="flex items-center gap-1.5 pb-2 border-b border-paper-border/70 overflow-x-auto text-xs font-semibold text-paper-muted mb-2">
+              <span class="text-[11px] text-paper-faint px-1">Generate:</span>
+              <button onclick="setFastMode('image')" id="pill-image" class="px-2.5 py-1 rounded-lg bg-paper-subtle hover:bg-accent-soft hover:text-accent text-paper-muted transition-colors flex items-center gap-1.5">
+                <i data-lucide="image" class="w-3.5 h-3.5"></i>
+                <span>Image</span>
+              </button>
+              <button onclick="setFastMode('video')" id="pill-video" class="px-2.5 py-1 rounded-lg bg-paper-subtle hover:bg-accent-soft hover:text-accent text-paper-muted transition-colors flex items-center gap-1.5">
+                <i data-lucide="video" class="w-3.5 h-3.5"></i>
+                <span>Video</span>
+              </button>
+              <button onclick="setFastMode('post')" id="pill-post" class="px-2.5 py-1 rounded-lg bg-paper-subtle hover:bg-accent-soft hover:text-accent text-paper-muted transition-colors flex items-center gap-1.5">
+                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                <span>Social Post</span>
+              </button>
+              <button onclick="setFastMode('chat')" id="pill-chat" class="px-2.5 py-1 rounded-lg bg-accent-soft text-accent transition-colors flex items-center gap-1.5">
+                <i data-lucide="bot" class="w-3.5 h-3.5"></i>
+                <span>Smart AI</span>
+              </button>
+            </div>
+
+            <!-- Text Input Area -->
+            <div class="relative">
+              <textarea
+                id="userInput"
+                rows="2"
+                placeholder="Ask anything... (e.g., 'Generate a warm architectural interior', 'Create a 10s coastal clip', 'Draft a LinkedIn post')"
+                class="w-full resize-none border-0 bg-transparent p-2 text-sm text-paper-text placeholder-paper-faint focus:ring-0 focus:outline-none"
+                onkeydown="handleKeyPress(event)"
+              ></textarea>
+            </div>
+
+            <!-- Input Bottom Toolbar -->
+            <div class="flex items-center justify-between pt-1">
+              <div class="flex items-center gap-1">
+                <button onclick="document.getElementById('mockUpload').click()" class="w-8 h-8 rounded-lg flex items-center justify-center text-paper-muted hover:text-paper-text hover:bg-paper-subtle transition-colors" title="Attach file or reference">
+                  <i data-lucide="plus" class="w-4 h-4"></i>
+                </button>
+                <input type="file" id="mockUpload" class="hidden" onchange="showToast('Reference file attached')">
+
+                <button onclick="toggleVoice()" id="voiceBtn" class="w-8 h-8 rounded-lg flex items-center justify-center text-paper-muted hover:text-paper-text hover:bg-paper-subtle transition-colors" title="Voice Input">
+                  <i data-lucide="mic" class="w-4 h-4"></i>
+                </button>
+                <span id="voiceStatus" class="hidden text-[11px] text-accent font-medium ml-1">Listening...</span>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <span class="text-[11px] text-paper-faint hidden sm:inline">Press Enter to Send</span>
+                <button
+                  onclick="sendMessage()"
+                  id="sendBtn"
+                  class="w-9 h-9 bg-accent hover:bg-accent-hover text-white rounded-xl flex items-center justify-center transition-colors"
+                >
+                  <i data-lucide="arrow-up" class="w-5 h-5"></i>
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ================= 3 FEATURE CARDS ================= -->
+        <div id="featureCardsSection" class="grid grid-cols-1 md:grid-cols-3 gap-3.5 my-6">
+
+          <!-- Card 1: Image -->
+          <div onclick="quickTrigger('image')" class="p-4 bg-paper-surface rounded-2xl border border-paper-border hover:border-accent-border transition-colors cursor-pointer group flex flex-col justify-between">
+            <div>
+              <div class="w-8 h-8 rounded-xl bg-paper-subtle text-accent flex items-center justify-center mb-3">
+                <i data-lucide="image" class="w-4 h-4"></i>
+              </div>
+              <h3 class="text-xs font-bold text-paper-text mb-1">Generate AI Images</h3>
+              <p class="text-[11px] text-paper-muted leading-relaxed mb-3">
+                Create crisp visuals, editorial scenes, and product mockups on demand.
+              </p>
+            </div>
+            <div class="text-[11px] font-semibold text-paper-text flex items-center gap-1 group-hover:text-accent transition-colors">
+              <span>Try prompt</span>
+              <i data-lucide="arrow-right" class="w-3 h-3 group-hover:translate-x-1 transition-transform"></i>
+            </div>
+          </div>
+
+          <!-- Card 2: Video -->
+          <div onclick="quickTrigger('video')" class="p-4 bg-paper-surface rounded-2xl border border-paper-border hover:border-accent-border transition-colors cursor-pointer group flex flex-col justify-between">
+            <div>
+              <div class="w-8 h-8 rounded-xl bg-paper-subtle text-accent flex items-center justify-center mb-3">
+                <i data-lucide="video" class="w-4 h-4"></i>
+              </div>
+              <h3 class="text-xs font-bold text-paper-text mb-1">AI Video Studio</h3>
+              <p class="text-[11px] text-paper-muted leading-relaxed mb-3">
+                Render smooth camera moves, natural lighting clips, and short motion sequences.
+              </p>
+            </div>
+            <div class="text-[11px] font-semibold text-paper-text flex items-center gap-1 group-hover:text-accent transition-colors">
+              <span>Try prompt</span>
+              <i data-lucide="arrow-right" class="w-3 h-3 group-hover:translate-x-1 transition-transform"></i>
+            </div>
+          </div>
+
+          <!-- Card 3: Social Media Posts -->
+          <div onclick="quickTrigger('post')" class="p-4 bg-paper-surface rounded-2xl border border-paper-border hover:border-accent-border transition-colors cursor-pointer group flex flex-col justify-between">
+            <div>
+              <div class="w-8 h-8 rounded-xl bg-paper-subtle text-accent flex items-center justify-center mb-3">
+                <i data-lucide="share-2" class="w-4 h-4"></i>
+              </div>
+              <h3 class="text-xs font-bold text-paper-text mb-1">Social Media & Posts</h3>
+              <p class="text-[11px] text-paper-muted leading-relaxed mb-3">
+                Write clear, thoughtful captions, launch notes, and channel-ready copy.
+              </p>
+            </div>
+            <div class="text-[11px] font-semibold text-paper-text flex items-center gap-1 group-hover:text-accent transition-colors">
+              <span>Try prompt</span>
+              <i data-lucide="arrow-right" class="w-3 h-3 group-hover:translate-x-1 transition-transform"></i>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ================= FOOTER TAG ================= -->
+        <div class="flex justify-center pb-4">
+          <div class="bg-paper-surface border border-paper-border text-paper-muted text-xs font-medium px-4 py-1.5 rounded-full flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
+            <span>Auralis Studio — Warm Editorial Theme</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ================= NOTIFICATION TOAST ================= -->
+  <div id="toast" class="fixed bottom-6 right-6 bg-paper-text text-paper-bg px-4 py-2.5 rounded-xl border border-paper-border flex items-center gap-2.5 transform translate-y-20 opacity-0 transition-all duration-300 z-50 text-xs">
+    <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>
+    <span id="toastMsg">Action completed</span>
+  </div>
+
+  <!-- ================= JAVASCRIPT ================= -->
+  <script>
+    lucide.createIcons();
+    let currentMode = 'auto';
+    let isListening = false;
+
+    function toggleDropdown(id) {
+      document.getElementById(id).classList.toggle('hidden');
+    }
+
+    window.addEventListener('click', function(e) {
+      if (!e.target.closest('#modelBtn') && !e.target.closest('#modelMenu')) {
+        document.getElementById('modelMenu').classList.add('hidden');
+      }
+    });
+
+    function selectModel(modelName) {
+      document.getElementById('currentModelLabel').innerText = modelName;
+      document.getElementById('modelMenu').classList.add('hidden');
+      showToast(`Switched to ${modelName}`);
+    }
+
+    function setFastMode(mode) {
+      currentMode = mode;
+      ['image', 'video', 'post', 'chat'].forEach(m => {
+        const el = document.getElementById(`pill-${m}`);
+        if (m === mode) {
+          el.className = 'px-2.5 py-1 rounded-lg bg-accent-soft text-accent font-semibold transition-colors flex items-center gap-1.5';
+        } else {
+          el.className = 'px-2.5 py-1 rounded-lg bg-paper-subtle hover:bg-accent-soft hover:text-accent text-paper-muted transition-colors flex items-center gap-1.5';
+        }
+      });
+      const input = document.getElementById('userInput');
+      if (mode === 'image') input.placeholder = "Describe the image (e.g., 'Sunlit plaster & oak studio interior, natural shadows')...";
+      else if (mode === 'video') input.placeholder = "Describe the video (e.g., 'Slow pan across calm coastal water at golden hour')...";
+      else if (mode === 'post') input.placeholder = "What is the post about? (e.g., 'Announcement post for our new design workflow')...";
+      else input.placeholder = "Ask anything or ask Auralis to create images, videos, or posts...";
+      input.focus();
+    }
+
+    function setMode(mode) {
+      setFastMode(mode);
+      document.getElementById('welcomeHero').classList.add('hidden');
+      document.getElementById('featureCardsSection').classList.add('hidden');
+      document.getElementById('conversationStream').classList.remove('hidden');
+      document.getElementById('userInput').focus();
+    }
+
+    function handleKeyPress(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    }
+
+    function startNewChat() {
+      document.getElementById('conversationStream').innerHTML = '';
+      document.getElementById('conversationStream').classList.add('hidden');
+      document.getElementById('welcomeHero').classList.remove('hidden');
+      document.getElementById('featureCardsSection').classList.remove('hidden');
+      document.getElementById('userInput').value = '';
+      setFastMode('chat');
+      showToast('Started a fresh session');
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMsg').innerText = msg;
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 2400);
+    }
+
+    function shareChat() {
+      showToast('Project link copied');
+    }
+
+    function toggleVoice() {
+      isListening = !isListening;
+      const status = document.getElementById('voiceStatus');
+      const btn = document.getElementById('voiceBtn');
+      if (isListening) {
+        status.classList.remove('hidden');
+        btn.classList.add('text-accent', 'bg-accent-soft');
+        showToast('Voice input active');
+      } else {
+        status.classList.add('hidden');
+        btn.classList.remove('text-accent', 'bg-accent-soft');
+      }
+    }
+
+    function loadHistory(demoKey) {
+      document.getElementById('welcomeHero').classList.add('hidden');
+      document.getElementById('featureCardsSection').classList.add('hidden');
+      const stream = document.getElementById('conversationStream');
+      stream.classList.remove('hidden');
+      stream.innerHTML = '';
+
+      if (demoKey === 'image_demo') {
+        appendUserMessage('Architectural Courtyard Visuals');
+        renderGeneratedImage('Sunlit plaster and warm timber architectural courtyard');
+      } else if (demoKey === 'video_demo') {
+        appendUserMessage('Coastal Sunset Motion Clip');
+        renderGeneratedVideo('Slow drone glide over calm coastal water at dusk');
+      } else {
+        appendUserMessage('Brand Launch Editorial Post');
+        renderGeneratedPost('Auralis Studio release notes');
+      }
+      scrollToBottom();
+    }
+
+    function quickTrigger(type) {
+      const input = document.getElementById('userInput');
+      if (type === 'image') {
+        setFastMode('image');
+        input.value = "Create a calm architectural workspace with warm oak desks, plaster walls, and soft morning daylight.";
+      } else if (type === 'video') {
+        setFastMode('video');
+        input.value = "Generate a smooth 10-second shot of gentle waves rolling onto a quiet sandy shore in warm afternoon light.";
+      } else if (type === 'post') {
+        setFastMode('post');
+        input.value = "Draft a clear, engaging launch post for our new creative studio workflow.";
+      }
+      sendMessage();
+    }
+
+    function sendMessage() {
+      const input = document.getElementById('userInput');
+      const text = input.value.trim();
+      if (!text) return;
+
+      document.getElementById('welcomeHero').classList.add('hidden');
+      document.getElementById('featureCardsSection').classList.add('hidden');
+      const stream = document.getElementById('conversationStream');
+      stream.classList.remove('hidden');
+
+      appendUserMessage(text);
+      input.value = '';
+
+      const lower = text.toLowerCase();
+      let detectedType = currentMode;
+      if (detectedType === 'auto' || detectedType === 'chat') {
+        if (lower.includes('image') || lower.includes('picture') || lower.includes('photo') || lower.includes('workspace') || lower.includes('courtyard')) detectedType = 'image';
+        else if (lower.includes('video') || lower.includes('clip') || lower.includes('waves') || lower.includes('shore')) detectedType = 'video';
+        else if (lower.includes('post') || lower.includes('linkedin') || lower.includes('instagram') || lower.includes('caption') || lower.includes('launch')) detectedType = 'post';
+        else detectedType = 'chat';
+      }
+
+      const loadingId = 'loading-' + Date.now();
+      appendBotLoader(loadingId, detectedType);
+      scrollToBottom();
+
+      setTimeout(() => {
+        removeLoader(loadingId);
+        if (detectedType === 'image') renderGeneratedImage(text);
+        else if (detectedType === 'video') renderGeneratedVideo(text);
+        else if (detectedType === 'post') renderGeneratedPost(text);
+        else renderGeneralChat(text);
+        scrollToBottom();
+      }, 1100);
+    }
+
+    function appendUserMessage(text) {
+      const stream = document.getElementById('conversationStream');
+      const div = document.createElement('div');
+      div.className = "flex justify-end gap-3 items-start";
+      div.innerHTML = `
+        <div class="max-w-xl bg-paper-subtle text-paper-text border border-paper-border px-4 py-3 rounded-2xl rounded-tr-none text-sm leading-relaxed">
+          <p>${escapeHtml(text)}</p>
+        </div>
+        <div class="w-8 h-8 rounded-lg overflow-hidden shrink-0 border border-paper-border">
+          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80" alt="User avatar" class="w-full h-full object-cover">
+        </div>
+      `;
+      stream.appendChild(div);
+      lucide.createIcons();
+    }
+
+    function appendBotLoader(id, type) {
+      const stream = document.getElementById('conversationStream');
+      const div = document.createElement('div');
+      div.id = id;
+      div.className = "flex gap-3 items-start";
+
+      let statusMsg = "Preparing response...";
+      if (type === 'image') statusMsg = "Rendering visual composition...";
+      if (type === 'video') statusMsg = "Compositing motion frames...";
+      if (type === 'post') statusMsg = "Drafting copy & structure...";
+
+      div.innerHTML = `
+        <div class="w-8 h-8 bg-accent-soft border border-accent-border rounded-lg flex items-center justify-center text-accent shrink-0">
+          <i data-lucide="sparkles" class="w-4 h-4 animate-spin"></i>
+        </div>
+        <div class="bg-paper-surface border border-paper-border rounded-2xl rounded-tl-none p-4 max-w-lg w-full">
+          <div class="flex items-center gap-2 mb-2 text-xs font-semibold text-accent">
+            <span>${statusMsg}</span>
+          </div>
+          <div class="w-full bg-paper-subtle rounded-full h-1.5 overflow-hidden">
+            <div class="bg-accent h-1.5 rounded-full animate-pulse" style="width: 70%"></div>
+          </div>
+        </div>
+      `;
+      stream.appendChild(div);
+      lucide.createIcons();
+    }
+
+    function removeLoader(id) {
+      const el = document.getElementById(id);
+      if (el) el.remove();
+    }
+
+    function renderGeneratedImage(prompt) {
+      const stream = document.getElementById('conversationStream');
+      const div = document.createElement('div');
+      div.className = "flex gap-3 items-start";
+      const imageUrl = "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=85";
+
+      div.innerHTML = `
+        <div class="w-8 h-8 bg-accent-soft border border-accent-border rounded-lg flex items-center justify-center text-accent shrink-0">
+          <i data-lucide="image" class="w-4 h-4"></i>
+        </div>
+        <div class="bg-paper-surface border border-paper-border rounded-2xl rounded-tl-none p-4 max-w-xl w-full">
+          <div class="flex items-center justify-between pb-2 mb-3 border-b border-paper-border/70">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold text-paper-text">Auralis Vision</span>
+              <span class="text-[10px] bg-accent-soft text-accent px-2 py-0.5 rounded-full font-semibold">Ready</span>
+            </div>
+            <span class="text-[11px] text-paper-faint">1200 × 800 • Natural Light</span>
+          </div>
+          <div class="relative rounded-xl overflow-hidden border border-paper-border mb-3 bg-paper-subtle">
+            <img src="${imageUrl}" alt="Generated architectural scene" class="w-full h-64 object-cover">
+          </div>
+          <p class="text-xs text-paper-muted mb-3"><span class="font-semibold text-paper-text">Prompt:</span> ${escapeHtml(prompt)}</p>
+          <div class="flex items-center justify-between text-xs text-paper-muted">
+            <span>Aspect: 3:2</span>
+            <button onclick="showToast('Image downloaded')" class="text-accent hover:underline font-semibold flex items-center gap-1">
+              <i data-lucide="download" class="w-3.5 h-3.5"></i>
+              <span>Download</span>
+            </button>
+          </div>
+        </div>
+      `;
+      stream.appendChild(div);
+      lucide.createIcons();
+    }
+
+    function renderGeneratedVideo(prompt) {
+      const stream = document.getElementById('conversationStream');
+      const div = document.createElement('div');
+      div.className = "flex gap-3 items-start";
+      const posterUrl = "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80";
+
+      div.innerHTML = `
+        <div class="w-8 h-8 bg-accent-soft border border-accent-border rounded-lg flex items-center justify-center text-accent shrink-0">
+          <i data-lucide="video" class="w-4 h-4"></i>
+        </div>
+        <div class="bg-paper-surface border border-paper-border rounded-2xl rounded-tl-none p-4 max-w-xl w-full">
+          <div class="flex items-center justify-between pb-2 mb-3 border-b border-paper-border/70">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold text-paper-text">Auralis Motion</span>
+              <span class="text-[10px] bg-paper-subtle text-paper-muted px-2 py-0.5 rounded-full font-semibold">10s • 24 FPS</span>
+            </div>
+            <span class="text-[11px] text-paper-faint">1080p</span>
+          </div>
+          <div class="relative rounded-xl overflow-hidden border border-paper-border mb-3 bg-paper-subtle h-56 flex items-center justify-center">
+            <img src="${posterUrl}" alt="Coastal frame preview" class="w-full h-full object-cover">
+            <button onclick="showToast('Playing motion preview')" class="absolute w-12 h-12 rounded-full bg-paper-surface/95 border border-paper-border text-accent flex items-center justify-center hover:scale-105 transition-transform">
+              <i data-lucide="play" class="w-5 h-5 fill-current ml-0.5"></i>
+            </button>
+          </div>
+          <p class="text-xs text-paper-muted mb-3"><span class="font-semibold text-paper-text">Prompt:</span> ${escapeHtml(prompt)}</p>
+          <div class="flex items-center justify-between text-xs text-paper-muted">
+            <span>Motion: Gentle pan</span>
+            <button onclick="showToast('Video export started')" class="text-accent hover:underline font-semibold flex items-center gap-1">
+              <i data-lucide="download" class="w-3.5 h-3.5"></i>
+              <span>Export MP4</span>
+            </button>
+          </div>
+        </div>
+      `;
+      stream.appendChild(div);
+      lucide.createIcons();
+    }
+
+    function renderGeneratedPost(prompt) {
+      const stream = document.getElementById('conversationStream');
+      const div = document.createElement('div');
+      div.className = "flex gap-3 items-start";
+      const sampleCopy = `A calmer way to move from idea to finished work.\n\nWe built this workflow around clarity, clean structure, and less friction—so more energy goes into the craft itself.\n\nWhat part of your daily creative process would you simplify first?\n\n#DesignProcess #CreativeWorkflow #ProductCraft #StudioNotes`;
+
+      div.innerHTML = `
+        <div class="w-8 h-8 bg-accent-soft border border-accent-border rounded-lg flex items-center justify-center text-accent shrink-0">
+          <i data-lucide="share-2" class="w-4 h-4"></i>
+        </div>
+        <div class="bg-paper-surface border border-paper-border rounded-2xl rounded-tl-none p-4 max-w-xl w-full">
+          <div class="flex items-center justify-between pb-2 mb-3 border-b border-paper-border/70">
+            <span class="text-xs font-bold text-paper-text">Auralis Copywriter</span>
+            <span class="text-[10px] bg-paper-subtle text-paper-muted px-2 py-0.5 rounded-full font-semibold">Draft Ready</span>
+          </div>
+          <p class="text-xs text-paper-muted mb-2">Topic: <span class="font-medium text-paper-text">${escapeHtml(prompt)}</span></p>
+          <pre class="whitespace-pre-wrap font-sans text-xs text-paper-text bg-paper-subtle p-3 rounded-xl border border-paper-border mb-3 leading-relaxed">${escapeHtml(sampleCopy)}</pre>
+          <div class="flex justify-end">
+            <button onclick="copyPostText(this)" class="text-xs font-semibold text-accent hover:underline flex items-center gap-1">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+              <span>Copy Draft</span>
+            </button>
+          </div>
+        </div>
+      `;
+      stream.appendChild(div);
+      lucide.createIcons();
+    }
+
+    function renderGeneralChat(text) {
+      const stream = document.getElementById('conversationStream');
+      const div = document.createElement('div');
+      div.className = "flex gap-3 items-start";
+      div.innerHTML = `
+        <div class="w-8 h-8 bg-accent-soft border border-accent-border rounded-lg flex items-center justify-center text-accent shrink-0">
+          <i data-lucide="bot" class="w-4 h-4"></i>
+        </div>
+        <div class="bg-paper-surface border border-paper-border rounded-2xl rounded-tl-none p-4 max-w-xl w-full text-xs text-paper-muted leading-relaxed">
+          <p class="font-bold text-paper-text mb-1">Auralis Studio Assistant</p>
+          <p>Got it — you asked about: <span class="font-semibold text-paper-text">"${escapeHtml(text)}"</span>. Use the <strong>Image</strong>, <strong>Video</strong>, or <strong>Social Post</strong> pills above whenever you want a specific asset type generated.</p>
+        </div>
+      `;
+      stream.appendChild(div);
+      lucide.createIcons();
+    }
+
+    function copyPostText(btn) {
+      const pre = btn.closest('.rounded-tl-none').querySelector('pre');
+      if (pre && navigator.clipboard) {
+        navigator.clipboard.writeText(pre.innerText).catch(() => {});
+      }
+      showToast('Draft copied to clipboard');
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function scrollToBottom() {
+      const area = document.getElementById('chatScrollArea');
+      area.scrollTop = area.scrollHeight;
+    }
+  </script>
+</body>
+</html>
