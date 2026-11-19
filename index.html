@@ -96,22 +96,22 @@
       <div class="space-y-1 mb-5 shrink-0">
         <span class="text-[11px] font-semibold text-paper-faint uppercase tracking-wider px-3 mb-1.5 block">Workspace</span>
 
-        <button type="button" onclick="setMode('chat'); closeMobileSidebar();" class="w-full flex items-center gap-3 px-3 py-2 rounded-xl bg-paper-surface text-paper-text border border-paper-border text-sm font-semibold transition-all">
+        <button type="button" id="nav-chat" onclick="setMode('chat'); closeMobileSidebar();" class="w-full flex items-center gap-3 px-3 py-2 rounded-xl bg-paper-surface text-paper-text border border-paper-border text-sm font-semibold transition-all">
           <i data-lucide="message-square" class="w-4 h-4 text-accent shrink-0"></i>
           <span class="truncate">AI Chat</span>
         </button>
 
-        <button type="button" onclick="setMode('image'); closeMobileSidebar();" class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-paper-muted hover:text-paper-text hover:bg-paper-subtle text-sm font-medium transition-all">
+        <button type="button" id="nav-image" onclick="setMode('image'); closeMobileSidebar();" class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-paper-muted hover:text-paper-text hover:bg-paper-subtle text-sm font-medium transition-all">
           <i data-lucide="image" class="w-4 h-4 text-paper-muted shrink-0"></i>
           <span class="truncate">Image Generator</span>
         </button>
 
-        <button type="button" onclick="setMode('video'); closeMobileSidebar();" class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-paper-muted hover:text-paper-text hover:bg-paper-subtle text-sm font-medium transition-all">
+        <button type="button" id="nav-video" onclick="setMode('video'); closeMobileSidebar();" class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-paper-muted hover:text-paper-text hover:bg-paper-subtle text-sm font-medium transition-all">
           <i data-lucide="video" class="w-4 h-4 text-paper-muted shrink-0"></i>
           <span class="truncate">Video Creator</span>
         </button>
 
-        <button type="button" onclick="setMode('post'); closeMobileSidebar();" class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-paper-muted hover:text-paper-text hover:bg-paper-subtle text-sm font-medium transition-all">
+        <button type="button" id="nav-post" onclick="setMode('post'); closeMobileSidebar();" class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-paper-muted hover:text-paper-text hover:bg-paper-subtle text-sm font-medium transition-all">
           <i data-lucide="share-2" class="w-4 h-4 text-paper-muted shrink-0"></i>
           <span class="truncate">Social Post Studio</span>
         </button>
@@ -411,7 +411,7 @@
   <!-- ================= JAVASCRIPT ================= -->
   <script>
     lucide.createIcons();
-    let currentMode = 'auto';
+    let currentMode = 'chat';
     let isListening = false;
 
     function autoResizeTextarea(el) {
@@ -445,30 +445,70 @@
       showToast(`Switched to ${modelName}`);
     }
 
+    function highlightNav(mode) {
+      ['chat', 'image', 'video', 'post'].forEach(m => {
+        const btn = document.getElementById(`nav-${m}`);
+        if (!btn) return;
+        if (m === mode) {
+          btn.className = 'w-full flex items-center gap-3 px-3 py-2 rounded-xl bg-paper-surface text-paper-text border border-paper-border text-sm font-semibold transition-all';
+        } else {
+          btn.className = 'w-full flex items-center gap-3 px-3 py-2 rounded-xl text-paper-muted hover:text-paper-text hover:bg-paper-subtle text-sm font-medium transition-all';
+        }
+      });
+    }
+
     function setFastMode(mode) {
       currentMode = mode;
       ['image', 'video', 'post', 'chat'].forEach(m => {
         const el = document.getElementById(`pill-${m}`);
+        if (!el) return;
         if (m === mode) {
           el.className = 'px-2.5 py-1 rounded-lg bg-accent-soft text-accent font-semibold transition-colors flex items-center gap-1.5 whitespace-nowrap shrink-0';
         } else {
           el.className = 'px-2.5 py-1 rounded-lg bg-paper-subtle hover:bg-accent-soft hover:text-accent text-paper-muted transition-colors flex items-center gap-1.5 whitespace-nowrap shrink-0';
         }
       });
+      highlightNav(mode);
       const input = document.getElementById('userInput');
       if (mode === 'image') input.placeholder = "Describe the image (e.g., 'Sunlit plaster & oak studio interior, natural shadows')...";
       else if (mode === 'video') input.placeholder = "Describe the video (e.g., 'Slow pan across calm coastal water at golden hour')...";
       else if (mode === 'post') input.placeholder = "What is the post about? (e.g., 'Announcement post for our new design workflow')...";
       else input.placeholder = "Ask anything or ask Auralis to create images, videos, or posts...";
-      input.focus();
     }
 
     function setMode(mode) {
       setFastMode(mode);
       document.getElementById('welcomeHero').classList.add('hidden');
       document.getElementById('featureCardsSection').classList.add('hidden');
-      document.getElementById('conversationStream').classList.remove('hidden');
+
+      const stream = document.getElementById('conversationStream');
+      stream.classList.remove('hidden');
+
+      if (stream.children.length === 0) {
+        const modeLabels = {
+          chat: { title: 'AI Chat Ready', text: 'Ask any question or type a prompt below to start chatting.' },
+          image: { title: 'Image Generator Ready', text: 'Describe the scene, lighting, or composition you want to generate.' },
+          video: { title: 'Video Creator Ready', text: 'Describe camera motion, setting, and mood for your clip.' },
+          post: { title: 'Social Post Studio Ready', text: 'Share your topic or announcement to draft ready-to-post copy.' }
+        };
+        const info = modeLabels[mode] || modeLabels.chat;
+        const starter = document.createElement('div');
+        starter.className = 'flex gap-2.5 sm:gap-3 items-start';
+        starter.innerHTML = `
+          <div class="w-8 h-8 bg-accent-soft border border-accent-border rounded-lg flex items-center justify-center text-accent shrink-0">
+            <i data-lucide="sparkles" class="w-4 h-4"></i>
+          </div>
+          <div class="bg-paper-surface border border-paper-border rounded-2xl rounded-tl-none p-3.5 sm:p-4 max-w-xl w-full min-w-0 text-xs text-paper-muted leading-relaxed">
+            <p class="font-bold text-paper-text mb-1">${info.title}</p>
+            <p>${info.text}</p>
+          </div>
+        `;
+        stream.appendChild(starter);
+        lucide.createIcons();
+      }
+
       document.getElementById('userInput').focus();
+      scrollToBottom();
     }
 
     function handleKeyPress(e) {
@@ -528,12 +568,15 @@
       stream.innerHTML = '';
 
       if (demoKey === 'image_demo') {
+        setFastMode('image');
         appendUserMessage('Architectural Courtyard Visuals');
         renderGeneratedImage('Sunlit plaster and warm timber architectural courtyard');
       } else if (demoKey === 'video_demo') {
+        setFastMode('video');
         appendUserMessage('Coastal Sunset Motion Clip');
         renderGeneratedVideo('Slow drone glide over calm coastal water at dusk');
       } else {
+        setFastMode('post');
         appendUserMessage('Brand Launch Editorial Post');
         renderGeneratedPost('Auralis Studio release notes');
       }
